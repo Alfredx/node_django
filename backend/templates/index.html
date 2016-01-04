@@ -1,0 +1,31 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+    <title>django+nodejs test</title>
+    <link rel="stylesheet" type="text/css" href="/static/backend/css/bootstrap.min.css">
+</head>
+
+<body>
+    <div>
+        <input type="hidden" name="csrfmiddlewaretoken" value="{{ csrf_token }}">
+    </div>
+    <script type="text/javascript" src="/static/backend/js/jquery-1.9.1.min.js"></script>
+    <script type="text/javascript" src="/static/backend/js/socket.io.min.js"></script>
+    <script type="text/javascript">
+    socket = io.connect('http://localhost:9000/');
+
+    socket.on('connecting', function() {
+        console.log('connecting');
+    });
+    socket.on('connect', function() {
+        console.log('connected');
+    });
+    socket.on('handshake', function(data) {
+        console.log(data);
+    });
+    socket.emit('new_chatroom', {'channel': 'chatroom'});
+    </script>
+</body>
+
+</html>
