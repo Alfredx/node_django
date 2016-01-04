@@ -16,6 +16,8 @@ npm-debug.log
 
 # for node modules
 node_modules/
+# django migration
+migrations/
 
 
 # for WebStorm
