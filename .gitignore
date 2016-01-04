@@ -1,0 +1,28 @@
+# from github's template
+lib-cov
+*.seed
+*.log
+*.csv
+*.dat
+*.out
+*.pid
+*.gz
+
+pids
+logs
+results
+
+npm-debug.log
+
+# for node modules
+node_modules/
+
+
+# for WebStorm
+.idea/
+
+# for files saving directory
+tmp/
+
+#for emacs' temp file
+*.*~
