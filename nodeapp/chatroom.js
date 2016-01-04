@@ -11,10 +11,32 @@ function initSocketEvent(socket, sub) {
     });
 
     socket.on('new_chatroom', function onSocketNewChatroom(data) {
-        sub.subscribe(data.channel);
-        sub.on('message', function onSubNewMessage(data) {
-            
+        console.log('new_chatroom');
+        // var options = {
+        //     host: 'localhost',
+        //     port: 8000,
+        //     path: '/channel_name',
+        //     method: 'GET',
+        //     headers: {
+        //         'Content-Type': 'application/x-www-form-urlencoded',
+        //         'Content-Length': values.length,
+        //         'X-CSRFToken': data.csrftoken
+        //     }
+        // };
+        var req = http.get('http://localhost:8000/channel_name/', function(res) {
+            // sub.subscribe(data.channel);
+            // sub.on('message', function onSubNewMessage(data) {
+
+            // });
+            res.setEncoding('utf-8');
+            res.on('data', function(data){
+                console.log(data);
+            });
+            res.resume();
+        }).on('error', function(e) {
+            console.log('error geting channel_name: ' + e);
         });
+
     });
 };
 
@@ -25,8 +47,9 @@ exports.init = function(io) {
         'port': 6379,
         'db': 3,
     })).subClient;
-    io.on('connection', function onSocketConnection(data){
+
+    io.on('connection', function onSocketConnection(socket) {
         console.log('new connection');
-        initSocketEvent(io, sub);
+        initSocketEvent(socket, sub);
     });
 };

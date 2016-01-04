@@ -20,4 +20,5 @@ urlpatterns = [
     url(r'^admin/', include(admin.site.urls)),
     url(r'^$', 'backend.views.index'),
     url(r'^node_api/$', 'backend.views.node_api'),
+    url(r'^channel_name/$', 'backend.views.channel_name'),
 ]

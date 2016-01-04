@@ -2,14 +2,23 @@ from django.shortcuts import render_to_response
 from django.template import RequestContext
 from django.views.decorators.csrf import csrf_protect, csrf_exempt
 from django.template.context_processors import csrf
-from django.http import HttpResponse
+from django.http import HttpResponse, JsonResponse
 import redis
+import random
 
 
 def index(request):
     ctx = {}
     ctx['csrf_token'] = csrf(request).get('csrf_token')
     return render_to_response('index.html', RequestContext(request, ctx))
+
+
+def channel_name(request):
+    info = {
+        'channel': '',
+    }
+    info['channel'] = 'channel_name_%d' % random.randint(0, 5)
+    return JsonResponse(info, safe=False)
 
 
 def node_api(request):

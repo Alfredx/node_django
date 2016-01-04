@@ -13,18 +13,20 @@
     <script type="text/javascript" src="/static/backend/js/jquery-1.9.1.min.js"></script>
     <script type="text/javascript" src="/static/backend/js/socket.io.min.js"></script>
     <script type="text/javascript">
-    socket = io.connect('http://localhost:9000/');
+    (function() {
+        socket = io.connect('http://localhost:9000/');
 
-    socket.on('connecting', function() {
-        console.log('connecting');
-    });
-    socket.on('connect', function() {
-        console.log('connected');
-    });
-    socket.on('handshake', function(data) {
-        console.log(data);
-    });
-    socket.emit('new_chatroom', {'channel': 'chatroom'});
+        socket.on('connecting', function() {
+            console.log('connecting');
+        });
+        socket.on('connect', function() {
+            console.log('connected');
+        });
+        socket.on('handshake', function(data) {
+            console.log(data);
+        });
+        socket.emit('new_chatroom', {'wtf':'wtf'});
+    })();
     </script>
 </body>
 
