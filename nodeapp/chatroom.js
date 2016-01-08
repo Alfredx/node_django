@@ -1,36 +1,36 @@
 var cookie_reader = require('cookie');
 var http = require('http');
-var redis = require('socket.io-redis');
+// var redis = require('socket.io-redis');
+var redis = require('redis');
 var sio = require('socket.io');
 var querystring = require('querystring');
 
-function initSocketEvent(socket, sub) {
+function initSocketEvent(socket) {
+    var channel_name = '';
+    var sub = redis.createClient();
     socket.emit('handshake', {
         'data_number': 1,
         'data_string': 'somestring'
     });
 
     socket.on('new_chatroom', function onSocketNewChatroom(data) {
-        console.log('new_chatroom');
-        // var options = {
-        //     host: 'localhost',
-        //     port: 8000,
-        //     path: '/channel_name',
-        //     method: 'GET',
-        //     headers: {
-        //         'Content-Type': 'application/x-www-form-urlencoded',
-        //         'Content-Length': values.length,
-        //         'X-CSRFToken': data.csrftoken
-        //     }
-        // };
-        var req = http.get('http://localhost:8000/channel_name/', function(res) {
-            // sub.subscribe(data.channel);
-            // sub.on('message', function onSubNewMessage(data) {
 
-            // });
+        var req = http.get('http://localhost:8000/channel_name/', function onGetChannelName(res) {
             res.setEncoding('utf-8');
-            res.on('data', function(data){
-                console.log(data);
+            res.on('data', function onGetData(data) {
+                var obj = JSON.parse(data)
+                console.log(obj);
+                socket.emit('channel_name', {
+                    'channel_name': obj.channel
+                });
+                channel_name = obj.channel;
+                sub.subscribe(obj.channel);
+                sub.on('message', function onSubNewMessage(channel, data) {
+                    socket.emit('channel_msg', {
+                        'channel_name': channel,
+                        'data': data
+                    });
+                });
             });
             res.resume();
         }).on('error', function(e) {
@@ -38,18 +38,40 @@ function initSocketEvent(socket, sub) {
         });
 
     });
+
+    socket.on('client_msg', function onSocketClientMsg(data) {
+        console.log(data);
+        var values = querystring.stringify({
+            'channel_name': channel_name,
+            'msg': data.msg
+        });
+        var options = {
+            host: 'localhost',
+            port: 8000,
+            path: '/node_api/',
+            method: 'POST',
+            headers: {
+                'Cookie': 'csrftoken=' + data.csrftoken,
+                'Content-Type': 'application/x-www-form-urlencoded',
+                'Content-Length': values.length,
+                'X-CSRFToken': data.csrftoken
+            }
+        };
+        var post_req = http.request(options, function onPostData(res) {
+            res.setEncoding('utf-8');
+            res.on('data', function(chunk) {
+                // console.log('post res: ' + chunk);
+            })
+        });
+        post_req.write(values);
+        post_req.end();
+    })
 };
 
 
 exports.init = function(io) {
-    var sub = io.adapter(redis({
-        'host': 'localhost',
-        'port': 6379,
-        'db': 3,
-    })).subClient;
-
     io.on('connection', function onSocketConnection(socket) {
         console.log('new connection');
-        initSocketEvent(socket, sub);
+        initSocketEvent(socket);
     });
 };

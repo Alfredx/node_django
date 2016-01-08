@@ -9,11 +9,14 @@
 <body>
     <div>
         <input type="hidden" name="csrfmiddlewaretoken" value="{{ csrf_token }}">
+        <button id="btn" style="width:200px;height:150px;">hit me</button>
     </div>
+    <div id="content"></div>
     <script type="text/javascript" src="/static/backend/js/jquery-1.9.1.min.js"></script>
     <script type="text/javascript" src="/static/backend/js/socket.io.min.js"></script>
     <script type="text/javascript">
     (function() {
+
         socket = io.connect('http://localhost:9000/');
 
         socket.on('connecting', function() {
@@ -22,10 +25,39 @@
         socket.on('connect', function() {
             console.log('connected');
         });
-        socket.on('handshake', function(data) {
-            console.log(data);
+        socket.emit('new_chatroom', {
+            'wtf': 'wtf'
         });
-        socket.emit('new_chatroom', {'wtf':'wtf'});
+        socket.on('channel_name', function onSocketChannelName(data) {
+            $('#content').append('channel: ' + data.channel_name + '<br>');
+        });
+        socket.on('channel_msg', function onSocketChannelMsg(data) {
+            console.log(data);
+            $('#content').append('channel msg: ' + String(data.data) + '<br>');
+        })
+        $('#btn').click(function() {
+            // $.ajax({
+            //     url: '/node_api/',
+            //     type: 'POST',
+            //     data: JSON.stringify({
+            //         'random_int': 678,
+            //         'random_str': 'adfbaklsdjfh',
+            //         'channel_name': 'channel_name_x',
+            //     }),
+            //     dataType: 'json',
+            //     beforeSend: function(xhr) {
+            //         xhr.setRequestHeader('Content-Type', 'application/json');
+            //         xhr.setRequestHeader('X-CSRFToken', '{{csrf_token}}');
+            //     },
+            //     success: function(data) {
+            //         console.log(data)
+            //     }
+            // });
+            socket.emit('client_msg', {
+                'msg': 'random str',
+                'csrftoken': '{{csrf_token}}'
+            });
+        });
     })();
     </script>
 </body>
