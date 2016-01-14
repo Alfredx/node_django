@@ -8,14 +8,9 @@ var querystring = require('querystring');
 function initSocketEvent(socket) {
     var channel_name = '';
     var sub = redis.createClient();
-    socket.emit('handshake', {
-        'data_number': 1,
-        'data_string': 'somestring'
-    });
 
     socket.on('new_chatroom', function onSocketNewChatroom(data) {
-
-        var req = http.get('http://localhost:8000/channel_name/', function onGetChannelName(res) {
+        var req = http.get('http://localhost:8000/nodetest/channel_name/', function onGetChannelName(res) {
             res.setEncoding('utf-8');
             res.on('data', function onGetData(data) {
                 var obj = JSON.parse(data)
@@ -36,7 +31,6 @@ function initSocketEvent(socket) {
         }).on('error', function(e) {
             console.log('error geting channel_name: ' + e);
         });
-
     });
 
     socket.on('client_msg', function onSocketClientMsg(data) {
@@ -48,24 +42,26 @@ function initSocketEvent(socket) {
         var options = {
             host: 'localhost',
             port: 8000,
-            path: '/node_api/',
+            path: '/nodetest/node_api/',
             method: 'POST',
             headers: {
-                'Cookie': 'csrftoken=' + data.csrftoken,
+                'Cookie': socket.handshake.headers.cookie,
                 'Content-Type': 'application/x-www-form-urlencoded',
                 'Content-Length': values.length,
-                'X-CSRFToken': data.csrftoken
             }
         };
+        console.log(options.headers.Cookie);
         var post_req = http.request(options, function onPostData(res) {
             res.setEncoding('utf-8');
             res.on('data', function(chunk) {
                 // console.log('post res: ' + chunk);
             })
+        }).on('error', function(e) {
+            // console.log('post error: '+e);
         });
         post_req.write(values);
         post_req.end();
-    })
+    });
 };
 
 

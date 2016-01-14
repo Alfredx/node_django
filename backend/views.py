@@ -25,14 +25,16 @@ def get_post_args(request, *args):
     return [request.POST.get(item, None) or args_info.get(item, None) for item in args]
 
 
+import sys
 def channel_name(request):
+    for item in dir(request):
+        print(sys.stderr, item, getattr(request,item))
     info = {
         'channel': '',
     }
     info['channel'] = 'channel_name_%d' % random.randint(0, 1)
     return JsonResponse(info, safe=False)
 
-import sys
 def node_api(request):
     try:
         channel_name, msg = get_post_args(request, 'channel_name', 'msg')
