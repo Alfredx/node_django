@@ -26,12 +26,25 @@ def get_post_args(request, *args):
 
 
 import sys
+
+def get_data(request):
+    data = {
+        'data1': 123,
+        'data2': 'abc',    
+    }
+    return JsonResponse(data, safe=False)
+
+
+def post_data(request):
+    data1, data2 = get_post_args(request, 'data1', 'data2')
+    response = {
+        'status': 'success',
+        'data1': data1,
+        'data2': data2,
+    }
+    return JsonResponse(response, safe=False)
+
 def channel_name(request):
-    # for item in dir(request):
-    #     print(sys.stderr, item, getattr(request,item))
-    # info = {
-    #     'channel': '',
-    # }
     info['channel'] = 'channel_name_%d' % random.randint(0, 1)
     return JsonResponse(info, safe=False)
 

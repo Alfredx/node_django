@@ -1,5 +1,6 @@
 var http = require('http');
 var querystring = require('querystring');
+var cookie = require('cookie');
 
 var default_protocol = 'http://'
 var default_host = 'localhost';
@@ -24,7 +25,7 @@ exports.get = function get(path, on_data_callback, on_err_callback) {
     var req = http.get(url, function onDjangoRequestGet(res) {
         res.setEncoding('utf-8');
         res.on('data', function onDjangoRequestGetData(data) {
-            on_data_callback(data);
+            on_data_callback(JSON.parse(data));
         });
         res.resume();
     }).on('error', function onDjangoRequestGetError(e) {
@@ -35,8 +36,8 @@ exports.get = function get(path, on_data_callback, on_err_callback) {
     });
 }
 
-exports.post = function post(socket, path, values, on_data_callback, on_err_callback) {
-    var csrftoken = values.csrftoken;
+exports.post = function post(user_cookie, path, values, on_data_callback, on_err_callback) {
+    var cookies = cookie.parse(user_cookie);
     var values = querystring.stringify(values);
     var options = {
         hostname: default_host,
@@ -44,13 +45,12 @@ exports.post = function post(socket, path, values, on_data_callback, on_err_call
         path: path,
         method: 'POST',
         headers: {
-            'Cookie': socket.handshake.headers.cookie,
+            'Cookie': user_cookie,
             'Content-Type': 'application/x-www-form-urlencoded',
             'Content-Length': values.length,
-            'X-CSRFToken': csrftoken,
+            'X-CSRFToken': cookies['csrftoken'],
         }
     };
-    console.log(options);
     var post_req = http.request(options, function onDjangoRequestPost(res) {
         res.setEncoding('utf-8');
         res.on('data', function onDjangoRequestPostData(data) {
@@ -61,7 +61,7 @@ exports.post = function post(socket, path, values, on_data_callback, on_err_call
         if (on_err_callback)
             on_err_callback(e);
         else
-            throw "error post to " + url + ", " + e;
+            throw "error get " + url + ", " + e;
     });
     post_req.write(values);
     post_req.end();

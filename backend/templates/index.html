@@ -13,6 +13,7 @@
     </div>
     <div id="content"></div>
     <script type="text/javascript" src="/static/backend/js/jquery-1.9.1.min.js"></script>
+    <script type="text/javascript" src="/static/backend/js/js.cookie.js"></script>
     <script type="text/javascript" src="/static/backend/js/socket.io.min.js"></script>
     <script type="text/javascript">
     (function() {
@@ -25,9 +26,9 @@
         socket.on('connect', function() {
             console.log('connected');
         });
-        socket.emit('new_chatroom', {
-            'wtf': 'wtf'
-        });
+        // socket.emit('new_chatroom', {
+        //     'wtf': 'wtf'
+        // });
         socket.on('channel_name', function onSocketChannelName(data) {
             $('#content').append('channel: ' + data.channel_name + '<br>');
         });
@@ -53,10 +54,12 @@
             //         console.log(data)
             //     }
             // });
-            socket.emit('client_msg', {
-                'msg': 'random str',
-                'csrftoken': '{{csrf_token}}'
-            });
+            // socket.emit('client_msg', {
+            //     'msg': 'random str',
+            //     'csrftoken': '{{csrf_token}}'
+            // });
+            socket.emit('get');
+            socket.emit('post');
         });
     })();
     </script>
